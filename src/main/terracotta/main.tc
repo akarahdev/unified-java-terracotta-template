@@ -1,0 +1,17 @@
+gameevent startup {
+    declare global port: num = 8080;
+    declare global webUrl: str = "URL HERE";
+}
+
+function request(path: str): any {
+    print(webUrl + ":" + port + path);
+    return var.getWebResponse(
+        webUrl + ":" + port + path,
+        method = "Get"
+    );
+}
+
+playerevent join {
+    line req = request("/v1/hello");
+    player.sendMessage(req);
+}

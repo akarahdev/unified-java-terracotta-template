@@ -1,0 +1,1 @@
+rootProject.name = "java-terracotta-unified-demo"
