@@ -2,7 +2,7 @@ gameevent startup {
     declare global port: num = 8080;
     declare global webUrl: str = "URL HERE";
 
-    enqueue_init();
+    enqueueInit();
 }
 
 playerevent sneak {
@@ -15,7 +15,7 @@ playerevent sneak {
     wait(5);
 
     for(line idx of range(1, 1000)) {
-        enqueue_request_and_forget("GET", "/v1/hello", {});
+        enqueueRequestAndForget("GET", "/v1/hello", {});
     }
 
     for(line idx of range(1, 10)) {
@@ -24,6 +24,6 @@ playerevent sneak {
 }
 
 process testsend {
-    line data = enqueue_request_blocking("GET", "/v1/hello", {});
+    line data = enqueueRequestBlocking("GET", "/v1/hello", {});
     print(data);
 }

@@ -1,9 +1,9 @@
-function enqueue_init() {
+function enqueueInit() {
     global requests: list[{id: num, method: str, endpoint: str, body: dict}] = [];
     start handleWebQueue(targetMode = "With no targets");
 }
 
-function enqueue_request_blocking(
+function enqueueRequestBlocking(
     method: str,
     path: str,
     body: dict
@@ -32,7 +32,7 @@ function enqueue_request_blocking(
 
 
 
-function enqueue_request_and_forget(
+function enqueueRequestAndForget(
     method: str,
     path: str,
     body: dict

@@ -16,7 +16,7 @@ This repository also has several utilities.
 ## Enqueue
 You will likely need to send more than one web request at a time.
 
-`enqueue.tc` provides a framework for batching web requests. The system for this implemented in `QueueController.java`. You can call `enqueue_request_blocking` to make a web request the current thread will block on, or call `enqueue_request_and_forget`, to not block and drop the result.
+`enqueue.tc` provides a framework for batching web requests. The system for this implemented in `QueueController.java`. You can call `enqueueRequestBlocking` to make a web request the current thread will block on, or call `enqueueRequestAndForget`, to not block and drop the result.
 
 ## Registries
 You may need to synchronize static data between your web server and your plot. You can use the registry system to do so.
