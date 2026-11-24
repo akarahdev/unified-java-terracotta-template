@@ -1,0 +1,94 @@
+function enqueue_init() {
+    global requests: list[{id: num, method: str, endpoint: str, body: dict}] = [];
+    start handleWebQueue(targetMode = "With no targets");
+}
+
+function enqueue_request_blocking(
+    method: str,
+    path: str,
+    body: dict
+): dict {
+    global requests: list[{id: num, method: str, endpoint: str, body: str}];
+
+    global enqueueIdTracker: num;
+    enqueueIdTracker += 1;
+
+    line id = enqueueIdTracker;
+    requests.append({
+        id: id,
+        method: method,
+        endpoint: path,
+        body: var.toJSON(body)
+    });
+
+    global "enqueue.%var(id)": dict;
+    while(!(var.exists(global "enqueue.%var(id)"))) {
+        wait(1);
+    }
+    line tmp = global "enqueue.%var(id)";
+    var.purgeMatching("enqueue.%var(id)", matchRequirement = "Entire name");
+    return tmp;
+}
+
+
+
+function enqueue_request_and_forget(
+    method: str,
+    path: str,
+    body: dict
+) {
+    global requests: list[{id: num, method: str, endpoint: str, body: str}];
+
+    requests.append({
+        id: -1,
+        method: method,
+        endpoint: path,
+        body: var.toJSON(body)
+    });
+}
+
+process handleWebQueue {
+    global requests: list[{id: num, method: str, endpoint: str, body: str}];
+    repeat {
+        line queueData: list[{id: num, method: str, endpoint: str, body: str}] = [];
+        line queueDataStr: str = "[]";
+
+        repeat {
+            if(requests.len() == 0) {
+                break;
+            }
+
+            queueDataStr = var.toJSON(queueData);
+            line next = requests.pop();
+
+            line estLen = (queueDataStr + var.toJSON(next)).len();
+            if(estLen >= 9500) {
+                requests.append(next);
+                break;
+            }
+
+            queueData.append(next);
+        }
+
+        queueDataStr = var.toJSON(queueData);
+
+        if(queueData.len() != 0) {
+            line rawResp = var.getWebResponse(
+                webUrl + ":" + port + "/v1/enqueue",
+                queueDataStr,
+                method = "Post",
+                contentType = "application/json"
+            );
+            line respJson = rawResp["json"] as list[{id: num, body: dict}];
+
+            for (line entry of respJson) {
+                line id = entry["id"];
+                if (id != -1) {
+                    global "enqueue.%var(id)" = entry["body"];
+                }
+            }
+        } else {
+            wait(1);
+        }
+    }
+}

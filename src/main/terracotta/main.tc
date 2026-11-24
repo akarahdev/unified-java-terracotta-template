@@ -1,17 +1,29 @@
 gameevent startup {
     declare global port: num = 8080;
     declare global webUrl: str = "URL HERE";
+
+    enqueue_init();
 }
 
-function request(path: str): any {
-    print(webUrl + ":" + port + path);
-    return var.getWebResponse(
-        webUrl + ":" + port + path,
+playerevent sneak {
+    line resp = var.getWebResponse(
+        webUrl + ":" + port + "/v1/hello",
+        "",
         method = "Get"
     );
+    print(resp);
+    wait(5);
+
+    for(line idx of range(1, 1000)) {
+        enqueue_request_and_forget("GET", "/v1/hello", {});
+    }
+
+    for(line idx of range(1, 10)) {
+        start testsend();
+    }
 }
 
-playerevent join {
-    line req = request("/v1/hello");
-    player.sendMessage(req);
+process testsend {
+    line data = enqueue_request_blocking("GET", "/v1/hello", {});
+    print(data);
 }
