@@ -1,0 +1,41 @@
+function registries_init() {
+    allPlayers.teleport(loc(0, 50, 0));
+
+    line pageSize = 10;
+
+    declare global registries: dict[str] = {
+        // "item_type": "Item Type"
+    };
+
+    for(line registryId, line registryName of registries) {
+        allPlayers.teleport(loc(10, 50, 10));
+        allPlayers.givePotionEffect(pot("blindness", 100, 100), particles = "None");
+        allPlayers.sendTitle(s"<gray>Loading " + registryName + "s", s"<gray>...", 10, 0, 0);
+
+        line count = enqueue_request_blocking("GET", "/v1/registry/count/" + registryId, {}) as num;
+
+        for(line page of range(0, num.ceil(count / pageSize))) {
+            allPlayers.teleport(loc(10, 50, 10));
+            allPlayers.givePotionEffect(pot("blindness", 100, 100), particles = "None");
+            line curr = page * pageSize;
+            if(curr > count) {
+                curr = count;
+            }
+            allPlayers.sendTitle(s"<gray>Loading " + registryName + "s", s"<gray>" + curr + "/" + count, 10, 0, 0);
+
+            line registryData = enqueue_request_blocking(
+                "GET",
+                "/v1/registry/dump/" + registryId + "?page=" + page + "&amount=" + pageSize,
+                {}
+            ) as dict;
+
+            for(line key, line data of registryData) {
+                global "registry.%var(registryId).%var(key)" = data;
+            }
+        }
+    }
+
+    allPlayers.clearPotionEffects();
+    allPlayers.teleport(loc(500.5, 50, 500.5, 0, 180));
+}
+
