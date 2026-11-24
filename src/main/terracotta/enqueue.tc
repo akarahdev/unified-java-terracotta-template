@@ -7,7 +7,7 @@ function enqueue_request_blocking(
     method: str,
     path: str,
     body: dict
-): dict {
+): any {
     global requests: list[{id: num, method: str, endpoint: str, body: str}];
 
     global enqueueIdTracker: num;
@@ -79,13 +79,10 @@ process handleWebQueue {
                 method = "Post",
                 contentType = "application/json"
             );
-            line respJson = rawResp["json"] as list[{id: num, body: dict}];
+            line respJson = rawResp["json"] as list[{id: num, body: str}];
 
             for (line entry of respJson) {
-                line id = entry["id"];
-                if (id != -1) {
-                    global "enqueue.%var(id)" = entry["body"];
-                }
+                global "enqueue.%entry(entry,id)" = var.fromJSON(entry["body"]);
             }
         } else {
             wait(1);

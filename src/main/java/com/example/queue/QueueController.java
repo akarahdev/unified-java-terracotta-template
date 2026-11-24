@@ -3,9 +3,10 @@ package com.example.queue;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 public class QueueController {
     @PostMapping("/v1/enqueue")
     public List<QueueResponse> enqueue(
+            @RequestHeader(value = "User-Agent") String userAgent,
             @RequestBody List<QueueEntry> queueEntries
     ) {
         LoggerFactory.getLogger(QueueController.class).info(queueEntries.toString());
@@ -25,6 +27,7 @@ public class QueueController {
             RestClient client = RestClient
                     .builder()
                     .baseUrl("http://localhost:8080")
+                    .defaultHeader("User-Agent", userAgent)
                     .build();
 
             String reply = client
