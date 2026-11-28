@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 public class StructureManager {
-    private Map<String, CompoundTag> nbtStructures = new HashMap<>();
+    private Map<String, DFStructure> nbtStructures = new HashMap<>();
     private static final ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
     public StructureManager() {
@@ -34,15 +34,28 @@ public class StructureManager {
                 String relative = url.substring(url.lastIndexOf(leadingDir) + leadingDir.length());
 
                 try (InputStream in = r.getInputStream()) {
-                    String id = relative.replace(".nbt", "");
+                    String id = relative.replace(".nbt", "").replace(".litematic", "");
                     File tmp = File.createTempFile("structures", id);
 
                     try(FileOutputStream os = new FileOutputStream(tmp)) {
                         os.write(in.readAllBytes());
                     }
 
-                    CompoundTag data = (CompoundTag) NBTUtil.read(tmp).getTag();
-                    nbtStructures.put(id, data);
+                    // vanilla structure
+                    if(relative.endsWith(".nbt")) {
+                        CompoundTag data = (CompoundTag) NBTUtil.read(tmp).getTag();
+                        VanillaStructure vanilla = VanillaStructure.of(data);
+                        DFStructure dfStructure = DFStructure.of(vanilla);
+                        nbtStructures.put(id, dfStructure);
+                    }
+                    if(relative.endsWith(".litematic")) {
+                        CompoundTag data = (CompoundTag) NBTUtil.read(tmp).getTag();
+                        LitematicaStructure vanilla = LitematicaStructure.of(data);
+                        DFStructure dfStructure = DFStructure.of(vanilla);
+                        nbtStructures.put(id, dfStructure);
+                    }
+
+                    System.out.println(id);
                 }
             }
         } catch (IOException e) {
@@ -50,7 +63,7 @@ public class StructureManager {
         }
     }
 
-    public CompoundTag getStructure(String id) {
+    public DFStructure getStructure(String id) {
         System.out.println(this.nbtStructures.keySet());
         return this.nbtStructures.get(id);
     }

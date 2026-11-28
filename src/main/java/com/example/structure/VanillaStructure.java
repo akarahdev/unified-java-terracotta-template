@@ -5,16 +5,11 @@ import net.querz.nbt.tag.ListTag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public record VanillaStructure(
     List<BlockState> palette,
     List<BlockData> blocks
 ) {
-    public record BlockState(
-            String name,
-            Map<String, String> properties
-    ) {}
 
     public record BlockData(
             int x,
@@ -30,29 +25,7 @@ public record VanillaStructure(
 
         ListTag<CompoundTag> paletteList = tag.getListTag("palette").asCompoundTagList();
         for(CompoundTag subtag : paletteList) {
-            CompoundTag properties = subtag.getCompoundTag("properties");
-            System.out.println(properties);
-
-            if(properties != null) {
-                palette.add(new BlockState(
-                        subtag.getString("id"),
-                        Map.ofEntries(
-                                properties.entrySet()
-                                        .stream().map(x -> Map.entry(
-                                                x.getKey(),
-                                                x.getValue()
-                                                        .valueToString()
-                                                        .replace("\"", "")))
-                                        .toArray(Map.Entry[]::new)
-                        )
-                ));
-            } else {
-                palette.add(new BlockState(
-                        subtag.getString("id"),
-                        Map.of()
-                ));
-            }
-
+            palette.add(BlockState.fromModernVanillaFormat(subtag));
         }
 
         ListTag<CompoundTag> blockList = tag.getListTag("blocks").asCompoundTagList();

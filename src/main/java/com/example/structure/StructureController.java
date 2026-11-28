@@ -1,8 +1,6 @@
 package com.example.structure;
 
-import dev.akarah.ucgt.web.structure.DFStructure;
 import dev.akarah.ucgt.web.structure.StructureManager;
-import dev.akarah.ucgt.web.structure.VanillaStructure;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +15,8 @@ public class StructureController {
 
     @GetMapping("/v1/structure/{id}")
     public DFStructure get(@PathVariable String id) {
-        return DFStructure.of(VanillaStructure.of(structureManager.getStructure(id)));
+        DFStructure structure = structureManager.getStructure(id);
+        System.out.println(structure);
+        return structure;
     }
 }
