@@ -1,0 +1,43 @@
+function getStructure(id: str): { paletteData: list[str], blockData: list[str] } {
+    line data = enqueueRequestBlocking(
+        "GET",
+        "/v1/structure/" + id,
+        {}
+    );
+
+    return data as {paletteData: list[str], blockData: list[str]};
+}
+
+function place(id: str, position: loc) {
+    line blocks: list[str] = [];
+    line structure = getStructure(id);
+
+    for(line paletteBlockData of structure["paletteData"]) {
+        line splitted = paletteBlockData.split("|");
+        for(line elem of splitted) {
+            blocks.append(elem);
+        }
+    }
+
+    for(line blockLine of structure["blockData"]) {
+        line splitted = blockLine.split(";");
+        for(line elem of splitted) {
+            line subsplit = elem.split(",");
+
+            line paletteIdx = num.parse(subsplit[1]);
+            line x = num.parse(subsplit[2]);
+            line y = num.parse(subsplit[3]);
+            line z = num.parse(subsplit[4]);
+
+            line bsSplit = blocks[paletteIdx + 1].split(";");
+            print(paletteIdx);
+            print(blocks[paletteIdx]);
+            game.setBlock(
+                bsSplit[1] as item,
+                position + vec(x, y, z),
+                bsSplit[2]
+            );
+            paletteIdx = 0;
+        }
+    }
+}

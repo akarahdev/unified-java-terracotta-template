@@ -18,6 +18,8 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
+
+    implementation("com.github.Querz:NBT:6.1")
 }
 
 tasks.test {
